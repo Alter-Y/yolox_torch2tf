@@ -57,13 +57,13 @@ if __name__ == '__main__':
     keras_model.trainable = False
     keras_model.summary()
 
-    keras_model.save('.\\yolox_tiny_save_model_1', save_format='tf')
+    keras_model.save('.\\yolox_tiny_save_model', save_format='tf')
     #
-    pb = '.\\yolox_tiny_save_model_1'
-    tf_model = tf.keras.models.load_model(pb)
-    spec = (tf.TensorSpec((None, 640, 640, 3), tf.float32, name="input"),)
-    output_path = ".\\yolox_tiny_save_model_1.onnx"
-    tf2onnx.convert.from_keras(tf_model, input_signature=spec, opset=13, output_path=output_path)
+    # pb = '.\\yolox_tiny_save_model_1'
+    # tf_model = tf.keras.models.load_model(pb)
+    # spec = (tf.TensorSpec((None, 640, 640, 3), tf.float32, name="input"),)
+    # output_path = ".\\yolox_tiny_save_model_1.onnx"
+    # tf2onnx.convert.from_keras(tf_model, input_signature=spec, opset=13, output_path=output_path)
     # # for layer in model.layers:
     #     print(layer)
 

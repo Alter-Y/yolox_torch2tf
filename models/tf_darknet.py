@@ -74,6 +74,7 @@ class TFCSPDarknet(keras.layers.Layer):
                        base_channels * 16,
                        n=base_depth,
                        depthwise=depthwise,
+                       shortcut=False,
                        act=act,
                        name=self.n[4][2],
                        w=w)

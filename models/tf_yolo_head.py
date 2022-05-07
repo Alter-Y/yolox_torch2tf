@@ -154,7 +154,7 @@ class TFYOLOXHead(keras.layers.Layer):
         strides = []
         for (hsize, wsize), stride in zip(self.hw, self.strides):
             yv, xv = tf.meshgrid(tf.range(hsize), tf.range(wsize))
-            grid = tf.reshape(tf.stack((xv, yv), 2), [1, -1, 2])
+            grid = tf.reshape(tf.stack((yv, xv), 2), [1, -1, 2])
             grids.append(grid)
             shape = grid.shape[:2]
             strides.append(tf.fill((*shape, 1), stride))
