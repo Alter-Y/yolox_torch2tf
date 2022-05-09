@@ -1,9 +1,9 @@
 import tensorflow as tf
 from tensorflow import keras
 
+
 class TFAct(keras.layers.Layer):
     """activation function from torch to tf"""
-
     def __init__(self, name=None):
         super().__init__()
         if name == "silu":
@@ -21,7 +21,6 @@ class TFAct(keras.layers.Layer):
 
 class TFBN(keras.layers.Layer):
     """TensorFlow BatchNormalization wrapper"""
-
     def __init__(self, w=None, name=None):
         super().__init__()
         self.n = [f'{name}.bn.bias',
@@ -39,11 +38,13 @@ class TFBN(keras.layers.Layer):
     def call(self, inputs):
         return self.bn(inputs)
 
+
 def autopad(k, p=None):  # kernel, padding
     # Pad to 'same'
     if p is None:
         p = k // 2 if isinstance(k, int) else (x // 2 for x in k)  # auto-pad
     return p
+
 
 class TFPad(keras.layers.Layer):
 
@@ -54,9 +55,9 @@ class TFPad(keras.layers.Layer):
     def call(self, inputs):
         return tf.pad(inputs, self.pad, mode='constant', constant_values=0)
 
+
 class TFBaseConv(keras.layers.Layer):
     """A Conv2d -> Batchnorm -> silu/leaky relu block"""
-
     def __init__(self, in_channels, out_channels, ksize, stride, padding=None,
                  g=1, bias=False, act="silu", name=None, w=None):
         super().__init__()
@@ -69,7 +70,7 @@ class TFBaseConv(keras.layers.Layer):
                 'SAME' if stride == 1 else 'VALID',
                 use_bias=bias,
                 kernel_initializer=keras.initializers.Constant(w[self.n[0]].permute(2, 3, 1, 0).numpy()))
-        else: # g = 1 otherwise in_channels
+        else: # g = 1, otherwise in_channels
             conv = keras.layers.DepthwiseConv2D(
                 ksize,
                 stride,
@@ -86,9 +87,9 @@ class TFBaseConv(keras.layers.Layer):
     # def fusecall(self, inputs):
     #     return self.act(self.conv(inputs))
 
+
 class TFDWConv(keras.layers.Layer):
     """Depthwise Conv + Conv"""
-
     def __init__(self, in_channels, out_channels, ksize, stride=1,
                  act="silu", name=None, w=None):
         super().__init__()
@@ -104,9 +105,9 @@ class TFDWConv(keras.layers.Layer):
     def call(self, inputs):
         return self.pconv(self.dconv(inputs))
 
+
 class TFBottleneck(keras.layers.Layer):
     """standard bottleneck"""
-
     def __init__(self, in_channels, out_channels, shortcut=True, expansion=0.5,
                  depthwise=False, act="silu", name=None, w=None):
         super().__init__()
@@ -119,15 +120,15 @@ class TFBottleneck(keras.layers.Layer):
         self.use_add = shortcut and in_channels == out_channels
 
     def call(self, inputs):
-        y=self.conv2(self.conv1(inputs))
+        x=self.conv2(self.conv1(inputs))
         if self.use_add:
-            y = y + inputs
-        return y
+            x = x + inputs
+        return x
+
 
 class TFResLayer(keras.layers.Layer):
     """Residual layer with `in_channels` inputs"""
-
-    def __init__(self, in_channels: int, name=None, w=None):
+    def __init__(self, in_channels, name=None, w=None):
         super().__init__()
         self.n = [f'{name}.layer1',
                   f'{name}.layer2']
@@ -140,12 +141,12 @@ class TFResLayer(keras.layers.Layer):
         )
 
     def call(self, inputs):
-        out = self.layer2(self.layer1(inputs))
-        return inputs + out
+        x = self.layer2(self.layer1(inputs))
+        return inputs + x
+
 
 class TFSPPBottleneck(keras.layers.Layer):
     """Spatial pyramid pooling layer used in YOLOv3-SPP"""
-
     def __init__(self, in_channels, out_channels, ksize=(5, 9, 13),
                  act="silu", name=None, w=None):
         super().__init__()
@@ -161,9 +162,9 @@ class TFSPPBottleneck(keras.layers.Layer):
         x = self.conv1(inputs)
         return self.conv2(tf.concat([x] + [m(x) for m in self.m], 3))
 
+
 class TFCSPLayer(keras.layers.Layer):
     """C3 in yolov5, CSP Bottleneck with 3 convolutions"""
-
     def __init__(self, in_channels, out_channels, n=1, shortcut=True, expansion=0.5,
                  depthwise=False, act="silu", name=None, w=None): # n(int): number of bottlenecks. Defalut 1.
         super().__init__()
@@ -188,9 +189,9 @@ class TFCSPLayer(keras.layers.Layer):
 
         return self.conv3(tf.concat((x_1, x_2), 3))
 
+
 class TFFcous(keras.layers.Layer):
     """Focus width and height information into channel space."""
-
     def __init__(self, in_channels, out_channels, ksize=1, stride=1, act="silu", name=None, w=None):
         super().__init__()
         self.conv = TFBaseConv(in_channels * 4, out_channels, ksize, stride, act=act, name=name, w=w)
@@ -202,9 +203,9 @@ class TFFcous(keras.layers.Layer):
                  inputs[:, ::2, 1::2, :], inputs[:, 1::2, 1::2, :]
                  ], 3))
 
+
 class TFUpsample(keras.layers.Layer):
     """tf version of torch.nn.Upsample()"""
-
     def __init__(self, scale_factor, mode):
         super().__init__()
         assert scale_factor == 2, "scale_factor must be 2"
@@ -213,8 +214,9 @@ class TFUpsample(keras.layers.Layer):
     def call(self, inputs):
         return self.upsample(inputs)
 
+
 class TFConv2d(keras.layers.Layer):
-    # Substitution for PyTorch nn.Conv2D
+    """Substitution for PyTorch nn.Conv2D"""
     def __init__(self, in_channels, out_channels, ksize, stride, padding=None,
                  bias=True, name=None, w=None):
         super().__init__()
@@ -232,72 +234,3 @@ class TFConv2d(keras.layers.Layer):
 
     def call(self, inputs):
         return self.conv(inputs)
-
-# class TFDpConv2d(keras.layers.Layer):
-#     # depthwise conv2d for tf
-#     def __init__(self, ksize, stride, act='silu', name=None, w=None):
-#         super().__init__()
-#         self.n = [f'{name}.conv.weight']
-#         self.dpconv = keras.layers.DepthwiseConv2D(
-#             ksize,
-#             stride,
-#             'SAME',
-#             use_bias=False,
-#             depthwise_initializer=keras.initializers.Constant(w[self.n[0]].permute(2, 3, 0, 1).numpy()))
-#         self.bn = TFBN(w=w, name=name)
-#         self.act = TFAct(name=act)
-#
-#     def call(self, inputs):
-#         return self.act(self.bn(self.dpconv(inputs)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

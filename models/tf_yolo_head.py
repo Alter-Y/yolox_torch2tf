@@ -2,6 +2,7 @@ from tensorflow import keras
 import tensorflow as tf
 from .tf_network_blocks import TFBaseConv, TFDWConv, TFConv2d
 
+
 class TFYOLOXHead(keras.layers.Layer):
     def __init__(self,
                  num_classes,
@@ -153,8 +154,8 @@ class TFYOLOXHead(keras.layers.Layer):
         grids = []
         strides = []
         for (hsize, wsize), stride in zip(self.hw, self.strides):
-            yv, xv = tf.meshgrid(tf.range(hsize), tf.range(wsize))
-            grid = tf.reshape(tf.stack((yv, xv), 2), [1, -1, 2])
+            yv, xv = tf.meshgrid(tf.range(hsize), tf.range(wsize), indexing='ij')
+            grid = tf.reshape(tf.stack((xv, yv), 2), [1, -1, 2])
             grids.append(grid)
             shape = grid.shape[:2]
             strides.append(tf.fill((*shape, 1), stride))
@@ -166,10 +167,3 @@ class TFYOLOXHead(keras.layers.Layer):
         outputs_wh = tf.exp(outputs[..., 2:4]) * strides
         outputs = tf.concat([outputs_xy, outputs_wh, outputs[..., 4:]], -1)
         return outputs
-
-
-
-
-
-
-

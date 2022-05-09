@@ -119,20 +119,3 @@ class TFYOLOPAFPN(keras.layers.Layer):
 
         outputs = (pan_out2, pan_out1, pan_out0)
         return outputs
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

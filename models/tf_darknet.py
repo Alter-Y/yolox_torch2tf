@@ -1,6 +1,6 @@
 from tensorflow import keras
 import tensorflow as tf
-from .tf_network_blocks import TFBaseConv, TFCSPLayer, TFDWConv, TFFcous, TFResLayer, TFSPPBottleneck
+from .tf_network_blocks import TFBaseConv, TFCSPLayer, TFDWConv, TFFcous, TFSPPBottleneck
 
 
 class TFCSPDarknet(keras.layers.Layer):
@@ -93,38 +93,3 @@ class TFCSPDarknet(keras.layers.Layer):
         x = self.dark5(x)
         outputs["dark5"] = x
         return {k: v for k, v in outputs.items() if k in self.out_features}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
