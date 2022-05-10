@@ -35,6 +35,3 @@ class Para:
         elif model == models[5]:
             self.depth = 1.0
             self.width = 1.0
-
-        # assert model not in models, "model must be in ['yolox_nano', 'yolox_tiny', 'yolox_s', " \
-        #                             "'yolox_x', 'yolox_m', 'yolox_l']"
