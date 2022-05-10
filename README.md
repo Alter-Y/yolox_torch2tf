@@ -23,7 +23,7 @@ Supported tensorflow: tensorflow saved_model, tflite
 **yolox_torch2tf**: root.  
 **models**: model translation code with tensorflow.  
 **exp**: export code and save tf model, you also need download 
-[yolox model](https://github.com/Megvii-BaseDetection/YOLOX) in this folder.
+[yolox model](https://github.com/Megvii-BaseDetection/YOLOX) to this folder.
 
 ## Usage
     python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu
