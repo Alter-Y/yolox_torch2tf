@@ -1,11 +1,12 @@
 # Introduction
 Translating the model in [yolox](https://github.com/Megvii-BaseDetection/YOLOX) to tensorflow2.0.  
-Supported yolox model: [yolox_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth), 
+you should download yolox model: [yolox_s](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_s.pth), 
 [yolox_m](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_m.pth),
 [yolox_l](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_l.pth),
 [yolox_x](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_x.pth),
 [yolox_nano](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_nano.pth),
-[yolox_tiny](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth)  
+[yolox_tiny](https://github.com/Megvii-BaseDetection/YOLOX/releases/download/0.1.1rc0/yolox_tiny.pth) 
+in exp folder( see the content ).   
 Supported tensorflow: tensorflow saved_model, tflite
 ## Content
 * yolox_torch2tf
@@ -21,7 +22,8 @@ Supported tensorflow: tensorflow saved_model, tflite
 ****
 **yolox_torch2tf**: root.  
 **models**: model translation code with tensorflow.  
-**exp**: export code.
+**exp**: export code and save tf model, you also need download 
+[yolox model](https://github.com/Megvii-BaseDetection/YOLOX) in this folder.
 
 ## Usage
     python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu
