@@ -92,13 +92,30 @@ def main(args):
     keras_model.summary()
 
     if args.include == "saved_model":
-        f = str(path).replace('.pth', '_saved_model')
-        keras_model.save(f, save_format='tf')
-        logger.info(f'Tensorflow SavedModel export success with tensorflow {tf.__version__}!')
-        logger.info(f'Tensorflow SavedModel Saved in: {f}')
+        try:
+            logger.info(f'Tensorflow SavedModel: starting export...')
+            f = str(path).replace('.pth', '_saved_model')
+            keras_model.save(f, save_format='tf')
+            logger.info(f'Tensorflow SavedModel: export success with tensorflow {tf.__version__}!')
+            logger.info(f'Tensorflow SavedModel: Saved as {f}')
+        except Exception as e:
+            logger.info(f'Tensorflow SavedModel: export failed! {e}')
 
     elif args.include == "tflite":
-        pass
+        try:
+            logger.info(f'Tensorflow Lite: starting export...')
+            f = str(path).replace('.pth', '_fp16.tflite')
+
+            converter = tf.lite.TFLiteConverter.from_keras_model(keras_model)
+            converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
+            converter.target_spec.supported_types = [tf.float16]
+            converter.optimizations = [tf.lite.Optimize.DEFAULT]
+            tflite_model = converter.convert()
+            open(f, "wb").write(tflite_model)
+            logger.info(f'Tensorflow Lite: export success with {tf.__version__}!')
+            logger.info(f'Tensorflow Lite: Saved as {f}')
+        except Exception as e:
+            logger.info(f'Tensorflow Lite: export failed! {e}')
 
 
 if __name__ == '__main__':
