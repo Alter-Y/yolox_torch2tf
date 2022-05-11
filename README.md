@@ -10,6 +10,8 @@ in exp folder( see the content ).
 Supported tensorflow: tensorflow saved_model, tflite
 ## Content
 * yolox_torch2tf
+  * datasets
+    * datasets.py
   * exp
     * export.py
     * para.py
@@ -21,14 +23,19 @@ Supported tensorflow: tensorflow saved_model, tflite
 
 ****
 **yolox_torch2tf**: root.  
+**datasets**: to export tflite int8, download [coco128](https://www.kaggle.com/datasets/ultralytics/coco128) 
+there as .\datasets\coco128.  
 **models**: model translation code with tensorflow.  
 **exp**: export code and save tf model, you also need download 
 [yolox model](https://github.com/Megvii-BaseDetection/YOLOX) to this folder.
 
 ## Usage
-    python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu
+parameter **int8** only for tflite int8, otherwise please ignore it.
+```
+    python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu --int8
                                 yolox_tiny                       tflite               gpu
                                 yolox_s
                                 yolox_x
                                 yolox_m
                                 yolox_l
+```

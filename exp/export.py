@@ -6,7 +6,8 @@ and save in current folder. For example:
     \yolox_nano.pth
 
 Usage:
-    $ python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu
+    parameter int8 only for tflite int8, otherwise please ignore it.
+    $ python path/to/export.py -n yolox_nano --tsize 640 --include saved_model --device cpu --int8
                                   yolox_tiny                       tflite
                                   yolox_s
                                   yolox_x
@@ -28,12 +29,14 @@ root = sys.path[0]
 
 from models.tf_yolo_pafpn import TFYOLOPAFPN
 from models.tf_yolo_head import TFYOLOXHead
+from datasets.datasets import Dataset, representative_dataset_gen
 
 
 def make_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", "--name", type=str, default=None, help="model name")
-    parser.add_argument("--tsize", default=None, type=int, help="test img size")
+    parser.add_argument("--tsize", default=640, type=int, help="test img size")
+    parser.add_argument("--int8", action='store_true', help="TF INT8 quantization")
     parser.add_argument(
         "--device",
         default="cpu",
@@ -78,7 +81,6 @@ def predict(inputs, model):
 
 def main(args):
     file = str(args.name) + ".pth"
-    print(args.name, args.include)
     path = os.path.join(root, file)
     logger.info("loading torch model...")
     ckpt = torch.load(path, map_location=torch.device(args.device))
@@ -110,9 +112,19 @@ def main(args):
             converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
             converter.target_spec.supported_types = [tf.float16]
             converter.optimizations = [tf.lite.Optimize.DEFAULT]
+            if args.int8:
+                dataset = Dataset(imgsz).data_load()
+                converter.representative_dataset = lambda: representative_dataset_gen(dataset)
+                converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS_INT8]
+                converter.target_spec.supported_types = []
+                converter.inference_input_type = tf.uint8  # or tf.int8
+                converter.inference_output_type = tf.uint8  # or tf.int8
+                converter.experimental_new_quantizer = True
+                f = str(path).replace('.pth', '-int8.tflite')
+
             tflite_model = converter.convert()
             open(f, "wb").write(tflite_model)
-            logger.info(f'Tensorflow Lite: export success with {tf.__version__}!')
+            logger.info(f'Tensorflow Lite: export success with tensorflow {tf.__version__}!')
             logger.info(f'Tensorflow Lite: Saved as {f}')
         except Exception as e:
             logger.info(f'Tensorflow Lite: export failed! {e}')
